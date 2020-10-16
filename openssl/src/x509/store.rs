@@ -45,9 +45,16 @@ use foreign_types::ForeignTypeRef;
 use std::mem;
 
 use error::ErrorStack;
+use libc::c_ulong;
 use stack::StackRef;
 use x509::{X509Object, X509};
 use {cvt, cvt_p};
+
+bitflags! {
+    pub struct X509StoreFlags : c_ulong {
+        const PARTIAL_CHAIN = ffi::X509_V_FLAG_PARTIAL_CHAIN;
+    }
+}
 
 foreign_type_and_impl_send_sync! {
     type CType = ffi::X509_STORE;
@@ -93,6 +100,10 @@ impl X509StoreBuilderRef {
     /// build time otherwise.
     pub fn set_default_paths(&mut self) -> Result<(), ErrorStack> {
         unsafe { cvt(ffi::X509_STORE_set_default_paths(self.as_ptr())).map(|_| ()) }
+    }
+
+    pub fn set_flags(&mut self, flags: X509StoreFlags) -> Result<(), ErrorStack> {
+        unsafe { cvt(ffi::X509_STORE_set_flags(self.as_ptr(), flags.bits())).map(|_| ()) }
     }
 }
 

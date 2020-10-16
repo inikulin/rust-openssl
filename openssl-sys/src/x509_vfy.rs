@@ -94,6 +94,7 @@ cfg_if! {
         pub const X509_V_ERR_PROXY_SUBJECT_NAME_VIOLATION: c_int = 67;
     }
 }
+pub const X509_V_FLAG_PARTIAL_CHAIN: c_ulong = 0x80000;
 
 extern "C" {
     pub fn X509_STORE_new() -> *mut X509_STORE;
@@ -111,6 +112,7 @@ extern "C" {
     pub fn X509_STORE_CTX_cleanup(ctx: *mut X509_STORE_CTX);
 
     pub fn X509_STORE_add_cert(store: *mut X509_STORE, x: *mut X509) -> c_int;
+    pub fn X509_STORE_set_flags(store: *mut X509_STORE, flags: c_ulong) -> c_int;
 
     pub fn X509_STORE_set_default_paths(store: *mut X509_STORE) -> c_int;
 

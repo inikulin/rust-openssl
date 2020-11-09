@@ -153,36 +153,6 @@ impl EcGroupRef {
         }
     }
 
-    /// Places the components of a curve over a binary field in the provided `BigNum`s.
-    /// The components make up the formula `y^2 + xy = x^3 + ax^2 + b`.
-    ///
-    /// In this form `p` relates to the irreducible polynomial.  Each bit represents
-    /// a term in the polynomial.  It will be set to 3 `1`s or 5 `1`s depending on
-    /// using a trinomial or pentanomial.
-    ///
-    /// OpenSSL documentation at [`EC_GROUP_get_curve_GF2m`].
-    ///
-    /// [`EC_GROUP_get_curve_GF2m`]: https://www.openssl.org/docs/man1.1.0/crypto/EC_GROUP_get_curve_GF2m.html
-    #[cfg(not(osslconf = "OPENSSL_NO_EC2M"))]
-    pub fn components_gf2m(
-        &self,
-        p: &mut BigNumRef,
-        a: &mut BigNumRef,
-        b: &mut BigNumRef,
-        ctx: &mut BigNumContextRef,
-    ) -> Result<(), ErrorStack> {
-        unsafe {
-            cvt(ffi::EC_GROUP_get_curve_GF2m(
-                self.as_ptr(),
-                p.as_ptr(),
-                a.as_ptr(),
-                b.as_ptr(),
-                ctx.as_ptr(),
-            ))
-            .map(|_| ())
-        }
-    }
-
     /// Places the cofactor of the group in the provided `BigNum`.
     ///
     /// OpenSSL documentation at [`EC_GROUP_get_cofactor`]
@@ -492,32 +462,6 @@ impl EcPointRef {
     ) -> Result<(), ErrorStack> {
         unsafe {
             cvt(ffi::EC_POINT_get_affine_coordinates_GFp(
-                group.as_ptr(),
-                self.as_ptr(),
-                x.as_ptr(),
-                y.as_ptr(),
-                ctx.as_ptr(),
-            ))
-            .map(|_| ())
-        }
-    }
-
-    /// Place affine coordinates of a curve over a binary field in the provided
-    /// `x` and `y` `BigNum`s
-    ///
-    /// OpenSSL documentation at [`EC_POINT_get_affine_coordinates_GF2m`]
-    ///
-    /// [`EC_POINT_get_affine_coordinates_GF2m`]: https://www.openssl.org/docs/man1.1.0/crypto/EC_POINT_get_affine_coordinates_GF2m.html
-    #[cfg(not(osslconf = "OPENSSL_NO_EC2M"))]
-    pub fn affine_coordinates_gf2m(
-        &self,
-        group: &EcGroupRef,
-        x: &mut BigNumRef,
-        y: &mut BigNumRef,
-        ctx: &mut BigNumContextRef,
-    ) -> Result<(), ErrorStack> {
-        unsafe {
-            cvt(ffi::EC_POINT_get_affine_coordinates_GF2m(
                 group.as_ptr(),
                 self.as_ptr(),
                 x.as_ptr(),

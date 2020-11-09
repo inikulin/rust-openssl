@@ -2,8 +2,6 @@ use libc::*;
 
 use *;
 
-pub enum CONF_METHOD {}
-
 pub const GEN_OTHERNAME: c_int = 0;
 pub const GEN_EMAIL: c_int = 1;
 pub const GEN_DNS: c_int = 2;

@@ -7,7 +7,7 @@
 
 use ffi;
 use foreign_types::{ForeignType, ForeignTypeRef};
-use libc::c_int;
+use libc::{c_int, c_uint};
 use std::fmt;
 use std::mem;
 use std::ptr;
@@ -203,7 +203,7 @@ impl Dsa<Private> {
             let dsa = Dsa::from_ptr(cvt_p(ffi::DSA_new())?);
             cvt(ffi::DSA_generate_parameters_ex(
                 dsa.0,
-                bits as c_int,
+                bits as c_uint,
                 ptr::null(),
                 0,
                 ptr::null_mut(),

@@ -3110,11 +3110,7 @@ impl SslRef {
     pub fn set_ocsp_status(&mut self, response: &[u8]) -> Result<(), ErrorStack> {
         unsafe {
             assert!(response.len() <= c_int::max_value() as usize);
-            let p = cvt_p(ffi::CRYPTO_malloc(
-                response.len() as _,
-                concat!(file!(), "\0").as_ptr() as *const _,
-                line!() as c_int,
-            ))?;
+            let p = cvt_p(ffi::OPENSSL_malloc(response.len() as _))?;
             ptr::copy_nonoverlapping(response.as_ptr(), p as *mut u8, response.len());
             cvt(ffi::SSL_set_tlsext_status_ocsp_resp(
                 self.as_ptr(),
@@ -4001,50 +3997,25 @@ cfg_if! {
         };
     }
 }
-cfg_if! {
-    if #[cfg(ossl110)] {
-        unsafe fn get_new_idx(f: ffi::CRYPTO_EX_free) -> c_int {
-            ffi::CRYPTO_get_ex_new_index(
-                ffi::CRYPTO_EX_INDEX_SSL_CTX,
-                0,
-                ptr::null_mut(),
-                None,
-                None,
-                Some(f),
-            )
-        }
 
-        unsafe fn get_new_ssl_idx(f: ffi::CRYPTO_EX_free) -> c_int {
-            ffi::CRYPTO_get_ex_new_index(
-                ffi::CRYPTO_EX_INDEX_SSL,
-                0,
-                ptr::null_mut(),
-                None,
-                None,
-                Some(f),
-            )
-        }
-    } else {
-        use std::sync::Once;
+use std::sync::Once;
 
-        unsafe fn get_new_idx(f: ffi::CRYPTO_EX_free) -> c_int {
-            // hack around https://rt.openssl.org/Ticket/Display.html?id=3710&user=guest&pass=guest
-            static ONCE: Once = Once::new();
-            ONCE.call_once(|| {
-                ffi::SSL_CTX_get_ex_new_index(0, ptr::null_mut(), None, None, None);
-            });
+unsafe fn get_new_idx(f: ffi::CRYPTO_EX_free) -> c_int {
+    // hack around https://rt.openssl.org/Ticket/Display.html?id=3710&user=guest&pass=guest
+    static ONCE: Once = Once::new();
+    ONCE.call_once(|| {
+        ffi::SSL_CTX_get_ex_new_index(0, ptr::null_mut(), None, None, None);
+    });
 
-            ffi::SSL_CTX_get_ex_new_index(0, ptr::null_mut(), None, None, Some(f))
-        }
+    ffi::SSL_CTX_get_ex_new_index(0, ptr::null_mut(), None, None, Some(f))
+}
 
-        unsafe fn get_new_ssl_idx(f: ffi::CRYPTO_EX_free) -> c_int {
-            // hack around https://rt.openssl.org/Ticket/Display.html?id=3710&user=guest&pass=guest
-            static ONCE: Once = Once::new();
-            ONCE.call_once(|| {
-                ffi::SSL_get_ex_new_index(0, ptr::null_mut(), None, None, None);
-            });
+unsafe fn get_new_ssl_idx(f: ffi::CRYPTO_EX_free) -> c_int {
+    // hack around https://rt.openssl.org/Ticket/Display.html?id=3710&user=guest&pass=guest
+    static ONCE: Once = Once::new();
+    ONCE.call_once(|| {
+        ffi::SSL_get_ex_new_index(0, ptr::null_mut(), None, None, None);
+    });
 
-            ffi::SSL_get_ex_new_index(0, ptr::null_mut(), None, None, Some(f))
-        }
-    }
+    ffi::SSL_get_ex_new_index(0, ptr::null_mut(), None, None, Some(f))
 }

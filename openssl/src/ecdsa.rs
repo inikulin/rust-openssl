@@ -2,7 +2,7 @@
 
 use ffi;
 use foreign_types::{ForeignType, ForeignTypeRef};
-use libc::c_int;
+use libc::{c_int, size_t};
 use std::mem;
 use std::ptr;
 
@@ -42,7 +42,7 @@ impl EcdsaSig {
             assert!(data.len() <= c_int::max_value() as usize);
             let sig = cvt_p(ffi::ECDSA_do_sign(
                 data.as_ptr(),
-                data.len() as c_int,
+                data.len() as size_t,
                 eckey.as_ptr(),
             ))?;
             Ok(EcdsaSig::from_ptr(sig as *mut _))
@@ -100,7 +100,7 @@ impl EcdsaSigRef {
             assert!(data.len() <= c_int::max_value() as usize);
             cvt_n(ffi::ECDSA_do_verify(
                 data.as_ptr(),
-                data.len() as c_int,
+                data.len() as size_t,
                 self.as_ptr(),
                 eckey.as_ptr(),
             ))

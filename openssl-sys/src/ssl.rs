@@ -1228,56 +1228,31 @@ extern "C" {
     ) -> size_t;
 }
 
-cfg_if! {
-    if #[cfg(ossl110)] {
-        pub unsafe fn SSL_get_ex_new_index(
-            l: c_long,
-            p: *mut c_void,
-            newf: Option<CRYPTO_EX_new>,
-            dupf: Option<CRYPTO_EX_dup>,
-            freef: Option<CRYPTO_EX_free>,
-        ) -> c_int {
-            CRYPTO_get_ex_new_index(CRYPTO_EX_INDEX_SSL, l, p, newf, dupf, freef)
-        }
-    } else {
-        extern "C" {
-            pub fn SSL_get_ex_new_index(
-                argl: c_long,
-                argp: *mut c_void,
-                new_func: Option<CRYPTO_EX_new>,
-                dup_func: Option<CRYPTO_EX_dup>,
-                free_func: Option<CRYPTO_EX_free>,
-            ) -> c_int;
-        }
-    }
+extern "C" {
+    pub fn SSL_get_ex_new_index(
+        argl: c_long,
+        argp: *mut c_void,
+        new_func: Option<CRYPTO_EX_new>,
+        dup_func: Option<CRYPTO_EX_dup>,
+        free_func: Option<CRYPTO_EX_free>,
+    ) -> c_int;
 }
+
 extern "C" {
     pub fn SSL_set_ex_data(ssl: *mut SSL, idx: c_int, data: *mut c_void) -> c_int;
     pub fn SSL_get_ex_data(ssl: *const SSL, idx: c_int) -> *mut c_void;
 }
-cfg_if! {
-    if #[cfg(ossl110)] {
-        pub unsafe fn SSL_CTX_get_ex_new_index(
-            l: c_long,
-            p: *mut c_void,
-            newf: Option<CRYPTO_EX_new>,
-            dupf: Option<CRYPTO_EX_dup>,
-            freef: Option<CRYPTO_EX_free>,
-        ) -> c_int {
-            CRYPTO_get_ex_new_index(CRYPTO_EX_INDEX_SSL_CTX, l, p, newf, dupf, freef)
-        }
-    } else {
-        extern "C" {
-            pub fn SSL_CTX_get_ex_new_index(
-                argl: c_long,
-                argp: *mut c_void,
-                new_func: Option<::CRYPTO_EX_new>,
-                dup_func: Option<::CRYPTO_EX_dup>,
-                free_func: Option<::CRYPTO_EX_free>,
-            ) -> c_int;
-        }
-    }
+
+extern "C" {
+    pub fn SSL_CTX_get_ex_new_index(
+        argl: c_long,
+        argp: *mut c_void,
+        new_func: Option<::CRYPTO_EX_new>,
+        dup_func: Option<::CRYPTO_EX_dup>,
+        free_func: Option<::CRYPTO_EX_free>,
+    ) -> c_int;
 }
+
 extern "C" {
     pub fn SSL_CTX_set_ex_data(ctx: *mut SSL_CTX, idx: c_int, data: *mut c_void) -> c_int;
     pub fn SSL_CTX_get_ex_data(ctx: *const SSL_CTX, idx: c_int) -> *mut c_void;

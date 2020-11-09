@@ -13,6 +13,8 @@ use stack::Stack;
 use x509::{X509Ref, X509};
 use {cvt, cvt_p};
 
+pub const PKCS12_DEFAULT_ITER: c_int = 2048;
+
 foreign_type_and_impl_send_sync! {
     type CType = ffi::PKCS12;
     fn drop = ffi::PKCS12_free;
@@ -89,8 +91,8 @@ impl Pkcs12 {
         Pkcs12Builder {
             nid_key: Nid::UNDEF,  //nid::PBE_WITHSHA1AND3_KEY_TRIPLEDES_CBC,
             nid_cert: Nid::UNDEF, //nid::PBE_WITHSHA1AND40BITRC2_CBC,
-            iter: ffi::PKCS12_DEFAULT_ITER,
-            mac_iter: ffi::PKCS12_DEFAULT_ITER,
+            iter: PKCS12_DEFAULT_ITER,
+            mac_iter: PKCS12_DEFAULT_ITER,
             ca: None,
         }
     }

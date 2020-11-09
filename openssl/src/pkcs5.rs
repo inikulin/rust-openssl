@@ -29,13 +29,14 @@ pub fn bytes_to_key(
     digest: MessageDigest,
     data: &[u8],
     salt: Option<&[u8]>,
-    count: i32,
+    count: u32,
 ) -> Result<KeyIvPair, ErrorStack> {
     unsafe {
         assert!(data.len() <= c_int::max_value() as usize);
         let salt_ptr = match salt {
             Some(salt) => {
-                assert_eq!(salt.len(), ffi::PKCS5_SALT_LEN as usize);
+                pub const PKCS5_SALT_LEN: c_int = 8;
+                assert_eq!(salt.len(), PKCS5_SALT_LEN as usize);
                 salt.as_ptr()
             }
             None => ptr::null(),
@@ -53,8 +54,8 @@ pub fn bytes_to_key(
             digest,
             salt_ptr,
             ptr::null(),
-            data.len() as c_int,
-            count.into(),
+            data.len(),
+            count,
             ptr::null_mut(),
             ptr::null_mut(),
         ))?;
@@ -70,8 +71,8 @@ pub fn bytes_to_key(
             digest,
             salt_ptr,
             data.as_ptr(),
-            data.len() as c_int,
-            count as c_int,
+            data.len(),
+            count,
             key.as_mut_ptr(),
             iv_ptr,
         ))?;
